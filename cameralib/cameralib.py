@@ -29,7 +29,7 @@ def camera_transform(f):
 
     @functools.wraps(f)
     def wrapped(self, *args, **kwargs):
-        inplace = kwargs.pop('inplace', default=False)
+        inplace = kwargs.pop('inplace', False)
         if inplace:
             return f(self, *args, **kwargs)
         else:

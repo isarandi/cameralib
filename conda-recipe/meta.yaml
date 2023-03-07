@@ -1,0 +1,27 @@
+package:
+  name: cameralib
+  version: 0.1.1
+
+source:
+  path: ..
+
+requirements:
+  host:
+    - python
+  run:
+    - python
+    - transforms3d
+    - opencv
+    - numpy
+
+about:
+  home: https://github.com/isarandi/cameralib
+  license: GPL-3.0+
+  license_family: GPL
+  license_file: LICENSE
+  summary: 'Represent, manipulate and use camera calibration info in computer vision tasks'
+  description: |
+    Represent, manipulate and use camera calibration info in computer vision tasks.
+  dev_url: https://github.com/isarandi/cameralib
+  doc_url: https://github.com/isarandi/cameralib
+  doc_source_url: https://github.com/isarandi/cameralib/blob/main/README.md
