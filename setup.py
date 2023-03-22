@@ -8,7 +8,7 @@ except KeyError:
 
 setup(
     name='cameralib',
-    version='0.1.1',
+    version='0.1.2',
     author='István Sárándi',
     author_email='sarandi@vision.rwth-aachen.de',
     packages=['cameralib'],
