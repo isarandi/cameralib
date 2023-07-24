@@ -3,7 +3,7 @@ How to build the conda package
 
 ```bash
 conda install anaconda-client conda-build
-conda build conda-recipe -c defaults -c conda-forge
+conda build conda-recipe -c defaults -c conda-forge -c isarandi
 
 anaconda login
 anaconda upload .../cameralib-....tar.bz2

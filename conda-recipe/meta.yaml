@@ -11,6 +11,7 @@ requirements:
   run:
     - python
     - transforms3d
+    - boxlib
     - opencv
     - numpy
 
