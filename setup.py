@@ -21,5 +21,6 @@ setup(
         'transforms3d',
         'opencv-python',
         'numpy',
+        'boxlib @ git+https://github.com/isarandi/boxlib.git',
     ]
 )

@@ -1,6 +1,7 @@
 import copy
 import functools
 
+import boxlib
 import cv2
 import numpy as np
 import transforms3d
@@ -147,7 +148,7 @@ class Camera:
 
     @point_transform
     def camera_to_world(self, points):
-        return points @ np.linalg.inv(self.R).T + self.t
+        return points @ self.R + self.t
 
     @point_transform
     def world_to_image(self, points):
@@ -247,6 +248,11 @@ class Camera:
         # The coordinates rotate according to the inverse of how the camera itself rotates
         point_coordinate_rotation = camera_rotation.T
         self.R = point_coordinate_rotation @ self.R
+
+    def get_pitch_roll(self):
+
+        yaw, pitch, roll = transforms3d.euler.mat2euler(self.R, 'ryxz')
+        return pitch, roll
 
     @camera_transform
     def zoom(self, factor):
@@ -513,8 +519,19 @@ def reproject_image_aliased(
 
     if remapped.ndim < image.ndim:
         return np.expand_dims(remapped, -1)
-
     return remapped
+
+
+def reproject_mask(
+        mask, old_camera, new_camera, dst_shape, border_mode=cv2.BORDER_CONSTANT,
+        border_value=0, interp=None, antialias_factor=1, dst=None):
+    # binarize to 0 vs 255 (assumed to be binary already, but perhaps 0 vs 1)
+    mask = (mask != 0).astype(np.uint8) * 255
+    new_mask = reproject_image(
+        mask, old_camera, new_camera, dst_shape, border_mode, border_value, interp,
+        antialias_factor, dst)
+    new_mask //= 128
+    return new_mask
 
 
 def allclose_or_nones(a, b):
@@ -526,10 +543,10 @@ def allclose_or_nones(a, b):
         return True
 
     if a is None:
-        return np.min(b) == np.max(b) == 0
+        return cv2.countNonZero(b) == 0
 
     if b is None:
-        return np.min(a) == np.max(a) == 0
+        return cv2.countNonZero(a) == 0
 
     return np.allclose(a, b)
 
@@ -574,7 +591,7 @@ def project_points(points, dist_coeff, intrinsic_matrix):
 
 @functools.lru_cache(5)
 def get_grid_coords(output_imshape):
-    """Return a meshgrid of coordinates for the image shape`output_imshape` (height, width).
+    """Return a meshgrid of coordinates for the image shape `output_imshape` (height, width).
 
     Returns
         Meshgrid of shape [height, width, 2], with the x and y coordinates (in this order)
@@ -603,7 +620,7 @@ def reproject_image_fast(
         flags=interp | cv2.WARP_INVERSE_MAP, borderMode=border_mode,
         borderValue=border_value, dst=dst)
 
-    if image.ndim == 2:
+    if remapped.ndim < image.ndim:
         return np.expand_dims(remapped, -1)
     return remapped
 
@@ -617,12 +634,21 @@ def reproject_image_points_fast(points, old_camera, new_camera):
     return pointsT.T
 
 
-def undistorted_camera(camera, square_pixels=True):
-    undist_camera = camera.copy()
-    undist_camera.undistort()
-    if square_pixels:
-        undist_camera.square_pixels()
-    return undist_camera
+def reproject_box(old_box, old_camera, new_camera):
+    return (reproject_box_corners(old_box, old_camera, new_camera) +
+            reproject_box_side_midpoints(old_box, old_camera, new_camera)) / 2
+
+
+def reproject_box_corners(old_box, old_camera, new_camera):
+    old_corners = boxlib.corners(old_box)
+    new_corners = reproject_image_points(old_corners, old_camera, new_camera)
+    return boxlib.bb_of_points(new_corners)
+
+
+def reproject_box_side_midpoints(old_box, old_camera, new_camera):
+    old_side_midpoints = boxlib.side_midpoints(old_box)
+    new_side_midpoints = reproject_image_points(old_side_midpoints, old_camera, new_camera)
+    return boxlib.bb_of_points(new_side_midpoints)
 
 
 def unit_vec(v):
