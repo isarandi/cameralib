@@ -296,7 +296,7 @@ class Camera:
         """Adjusts the intrinsic matrix so that the principal point becomes located at the center
         of an image sized imshape (height, width)"""
 
-        self.intrinsic_matrix[:2, 2] = np.float32([imshape[1] / 2, imshape[0] / 2])
+        self.intrinsic_matrix[:2, 2] = np.float32([(imshape[1] - 1) / 2, (imshape[0] - 1) / 2])
 
     @camera_transform
     def shift_to_center(self, desired_center_image_point, imshape):
@@ -304,7 +304,7 @@ class Camera:
         will be shown in the image center of an image shaped `imshape`."""
 
         current_coords_of_the_point = desired_center_image_point
-        target_coords_of_the_point = np.float32([imshape[1], imshape[0]]) / 2
+        target_coords_of_the_point = np.float32([imshape[1] - 1, imshape[0] - 1]) / 2
         self.intrinsic_matrix[:2, 2] += (
                 target_coords_of_the_point - current_coords_of_the_point)
 
@@ -380,7 +380,7 @@ class Camera:
         """
 
         intrinsics = np.eye(3, dtype=np.float32)
-        intrinsics[:2, 2] = [imshape[1] / 2, imshape[0] / 2]
+        intrinsics[:2, 2] = [(imshape[1] - 1) / 2, (imshape[0] - 1) / 2]
         return Camera(intrinsic_matrix=intrinsics)
 
     @property
@@ -391,8 +391,8 @@ class Camera:
 def intrinsics_from_fov(fov_degrees, imshape):
     f = np.max(imshape[:2]) / (np.tan(np.deg2rad(fov_degrees) / 2) * 2)
     intrinsics = np.array(
-        [[f, 0, imshape[1] / 2],
-         [0, f, imshape[0] / 2],
+        [[f, 0, (imshape[1] - 1) / 2],
+         [0, f, (imshape[0] - 1) / 2],
          [0, 0, 1]], np.float32)
     return intrinsics
 
