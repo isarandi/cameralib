@@ -32,7 +32,8 @@ def camera_transform(f):
     def wrapped(self, *args, **kwargs):
         inplace = kwargs.pop('inplace', True)
         if inplace:
-            return f(self, *args, **kwargs)
+            f(self, *args, **kwargs)
+            return self
         else:
             camcopy = self.copy()
             f(camcopy, *args, **kwargs)
