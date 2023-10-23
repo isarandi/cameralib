@@ -210,9 +210,8 @@ class Camera:
         """Roll the camera upright by turning along the optical axis to align the vertical image
         axis with the vertical world axis (world up vector), as much as possible.
         """
-
-        self.R[:, 0] = unit_vec(np.cross(self.R[:, 2], self.world_up))
-        self.R[:, 1] = np.cross(self.R[:, 0], self.R[:, 2])
+        self.R[0] = unit_vec(np.cross(self.R[2], self.world_up))
+        self.R[1] = -np.cross(self.R[0], self.R[2])
 
     @camera_transform
     def orbit_around(self, world_point_pivot, angle_radians, axis='vertical'):
