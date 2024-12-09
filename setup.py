@@ -8,7 +8,7 @@ except KeyError:
 
 setup(
     name='cameralib',
-    version='0.1.2',
+    version='0.1.3',
     author='István Sárándi',
     author_email='sarandi@vision.rwth-aachen.de',
     packages=['cameralib'],
@@ -18,9 +18,10 @@ setup(
     long_description='',
     python_requires='>=3.6',
     install_requires=[] if dependencies_managed_by_conda else [
-        'transforms3d',
         'opencv-python',
         'numpy',
+        'scipy',
+        'numba',
         'boxlib @ git+https://github.com/isarandi/boxlib.git',
     ]
 )
